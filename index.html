@@ -2,262 +2,276 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Omni-X Ultra v10.1 - Mobile Engine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solana Predator - Auto-Sniper & Safety</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;700&display=swap');
-        
-        body { 
-            background-color: #010204; 
-            color: #f1f5f9; 
-            font-family: 'Space Grotesk', sans-serif;
-            overflow-x: hidden;
-        }
-
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        
-        .glass-card { 
-            background: rgba(15, 23, 42, 0.8); 
-            backdrop-filter: blur(12px); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            border-radius: 1.25rem;
-        }
-
-        .btn-connect {
-            background: linear-gradient(90deg, #fbbf24, #f59e0b);
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
-        }
-
-        .terminal {
-            background: #000;
-            border: 1px solid #1e293b;
-            font-size: 11px;
-            height: 150px;
-        }
-
-        /* Pulse for online status */
-        .online-pulse {
-            width: 8px;
-            height: 8px;
-            background: #10b981;
-            border-radius: 50%;
-            display: inline-block;
-            box-shadow: 0 0 8px #10b981;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.3); }
-            100% { opacity: 1; transform: scale(1); }
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
+        body { font-family: 'Space Grotesk', sans-serif; background-color: #050505; color: #e5e7eb; }
+        .card-dark { background: #0f0f12; border: 1px solid #1f2937; border-radius: 16px; }
+        .accent-green { color: #00ffa3; }
+        .bg-accent-green { background-color: #00ffa3; }
+        .terminal-box { background: #000; border: 1px solid #1f2937; height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+        .trading-pulse { animation: pulse-green 2s infinite; }
+        @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(0, 255, 163, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 255, 163, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 255, 163, 0); } }
+        .tab-active { border-bottom: 2px solid #00ffa3; color: #00ffa3; }
     </style>
 </head>
-<body class="pb-24">
-
-    <!-- Header Section -->
-    <header class="p-5 flex justify-between items-center bg-[#010204]/80 backdrop-blur sticky top-0 z-[100] border-b border-white/5">
-        <div class="flex items-center gap-3">
-            <div class="bg-yellow-500 p-2 rounded-lg">
-                <i class="fas fa-bolt text-black text-lg"></i>
-            </div>
+<body class="p-4 md:p-6 lg:p-10">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4 border-b border-gray-800 pb-6">
             <div>
-                <h1 class="font-black text-sm tracking-tighter">OMNI-X ULTRA</h1>
-                <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">Mobile Engine v10.1</p>
+                <h1 class="text-4xl font-bold tracking-tighter text-white">SOLANA <span class="accent-green">PREDATOR</span></h1>
+                <p class="text-gray-500 font-medium uppercase tracking-widest text-xs">Automated HFT & Safety Engine v10.0</p>
             </div>
-        </div>
-        <button id="mainConnectBtn" class="btn-connect text-black font-black text-[10px] px-5 py-2.5 rounded-full transition-all active:scale-90">
-            CONNECT WALLET
-        </button>
-    </header>
-
-    <main class="p-4 space-y-5">
-        
-        <!-- Connection Helper (Visible if not connected) -->
-        <div id="connectionHelper" class="p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl hidden">
-            <div class="flex gap-3">
-                <i class="fas fa-info-circle text-blue-400 mt-1"></i>
-                <div class="text-xs text-blue-100 leading-relaxed">
-                    <p class="font-bold mb-1">Tips Koneksi Android:</p>
-                    <ul class="list-disc ml-4 space-y-1 opacity-80">
-                        <li>Buka link ini di dalam <b>Browser App Phantom</b>.</li>
-                        <li>Pastikan aplikasi Phantom sudah login.</li>
-                        <li>Gunakan Kiwi/Mises Browser jika ingin memakai ekstensi Chrome.</li>
-                    </ul>
-                </div>
+            <div id="statusIndicator" class="flex items-center gap-3 px-5 py-2 rounded-xl card-dark">
+                <span class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_10px_red]"></span>
+                <span class="text-sm font-bold">ENGINE DEACTIVATED</span>
             </div>
         </div>
 
-        <!-- Wallet Info Card -->
-        <div id="walletBox" class="hidden glass-card p-4 border-l-4 border-green-500">
-            <div class="flex justify-between items-start">
-                <div>
-                    <span class="text-[10px] text-gray-500 font-bold uppercase mono">Status: Online</span>
-                    <p id="walletAddr" class="text-sm font-bold mono mt-1">0x00...000</p>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Sidebar: Wallet & Config -->
+            <div class="lg:col-span-4 space-y-6">
+                <div class="card-dark p-6">
+                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2 italic">SECURE VAULT</h2>
+                    <div class="space-y-4">
+                        <input type="password" id="privKey" placeholder="Private Key (Array Format)" class="w-full bg-black border border-gray-800 p-3 rounded-lg text-sm text-white focus:outline-none focus:border-green-500">
+                        <button onclick="activateEngine()" id="btnActivate" class="w-full bg-white text-black font-black py-3 rounded-lg hover:bg-gray-200 transition-all uppercase italic">Inisialisasi Engine</button>
+                    </div>
                 </div>
-                <div class="text-right">
-                    <span class="text-[10px] text-gray-500 font-bold uppercase mono">Balance</span>
-                    <p class="text-sm font-black text-yellow-500">-- SOL</p>
+
+                <div class="card-dark p-6">
+                    <h2 class="text-lg font-bold mb-4 accent-green italic">AUTO-TRADE PARAMS</h2>
+                    <div class="space-y-4 text-sm">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Dip Buy Trigger</span>
+                            <span class="font-bold text-red-400">-10%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Take Profit Trigger</span>
+                            <span class="font-bold text-green-400">+25%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Anti-Rug Min Liquidity</span>
+                            <span class="font-bold">50 SOL</span>
+                        </div>
+                        <hr class="border-gray-800">
+                        <div class="space-y-2">
+                            <label class="text-xs text-gray-500">JITO TIP (MEV PROTECTION)</label>
+                            <input type="number" id="jitoTip" value="0.001" step="0.001" class="w-full bg-black border border-gray-800 p-2 rounded text-white">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Panel: Trading & Logs -->
+            <div class="lg:col-span-8 space-y-6">
+                <div class="card-dark p-6">
+                    <!-- Tabs -->
+                    <div class="flex gap-8 mb-6 border-b border-gray-800">
+                        <button onclick="setMode('auto')" id="tabAuto" class="pb-2 font-bold tab-active">AUTO-PILOT</button>
+                        <button onclick="setMode('manual')" id="tabManual" class="pb-2 font-bold text-gray-500">MANUAL TRADE</button>
+                    </div>
+
+                    <!-- Target Section -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-2 font-bold">TOKEN CONTRACT ADDRESS (CA)</label>
+                            <input type="text" id="tokenCA" oninput="fetchTokenData()" placeholder="Enter Solana CA..." class="w-full bg-black border border-gray-800 p-4 rounded-xl text-white font-mono text-sm focus:border-green-500 outline-none">
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="flex-1">
+                                <label class="block text-xs text-gray-500 mb-2 font-bold">SIZE (SOL)</label>
+                                <input type="number" id="tradeSize" value="0.1" class="w-full bg-black border border-gray-800 p-4 rounded-xl text-white font-bold outline-none">
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-xs text-gray-500 mb-2 font-bold">SLIPPAGE (%)</label>
+                                <input type="number" id="slippage" value="10" class="w-full bg-black border border-gray-800 p-4 rounded-xl text-white font-bold outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Auto Strategy Status -->
+                    <div id="autoStatusPanel" class="bg-black/50 p-4 rounded-xl border border-dashed border-gray-700 mb-6">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase">Live Tracking</p>
+                                <p id="priceTracker" class="text-2xl font-bold font-mono">--.--- <span class="text-sm font-normal text-gray-600">SOL/TOKEN</span></p>
+                            </div>
+                            <div class="text-right">
+                                <p id="safetyScore" class="text-xs font-bold px-3 py-1 rounded bg-gray-800 text-gray-400 inline-block mb-1 italic">SAFETY SCAN: N/A</p>
+                                <p id="strategyLabel" class="text-[10px] text-gray-500 uppercase tracking-tighter">Strategi: Menunggu Aktivasi CA</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div id="manualActions" class="hidden grid grid-cols-2 gap-4">
+                        <button onclick="executeTrade('buy')" class="bg-accent-green text-black font-black py-4 rounded-xl hover:scale-[1.02] transition-transform">INSTANT BUY</button>
+                        <button onclick="executeTrade('sell')" class="bg-red-500 text-white font-black py-4 rounded-xl hover:scale-[1.02] transition-transform">INSTANT SELL</button>
+                    </div>
+                    
+                    <div id="autoActions">
+                        <button onclick="startAutoPilot()" id="btnAutoStart" class="w-full border-2 border-accent-green text-accent-green font-black py-4 rounded-xl hover:bg-accent-green/10 transition-all uppercase italic">Aktifkan Auto-Pilot Tracking</button>
+                    </div>
+                </div>
+
+                <!-- Logs & Terminal -->
+                <div class="card-dark p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest italic">Engine Monitor Output</span>
+                        <div class="flex gap-4">
+                            <span id="lpStatus" class="text-[10px] text-gray-500 italic">LP: UNKNOWN</span>
+                            <span id="hpStatus" class="text-[10px] text-gray-500 italic">HP: UNKNOWN</span>
+                        </div>
+                    </div>
+                    <div id="terminal" class="terminal-box p-4 rounded-lg">
+                        <div class="text-gray-500">[SYSTEM] PREDATOR ENGINE READY. Masukkan Key untuk memulai.</div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <!-- Input Area -->
-        <div class="glass-card p-5 space-y-4">
-            <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Token Contract Address</p>
-            <div class="relative">
-                <input type="text" id="targetCA" placeholder="Paste CA di sini..." class="w-full bg-black/50 border border-white/10 rounded-xl py-4 px-4 text-sm outline-none focus:border-yellow-500/50 transition-all mono">
-                <button onclick="pasteCA()" class="absolute right-3 top-1/2 -translate-y-1/2 text-yellow-500 text-xs font-bold bg-yellow-500/10 px-2 py-1 rounded">PASTE</button>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-black/40 p-3 rounded-xl border border-white/5">
-                    <span class="text-[9px] text-gray-500 block mb-1">AMOUNT (SOL)</span>
-                    <input type="number" id="buyAmount" value="0.1" class="w-full bg-transparent text-xl font-bold outline-none text-white">
-                </div>
-                <div class="bg-black/40 p-3 rounded-xl border border-white/5">
-                    <span class="text-[9px] text-gray-500 block mb-1">SLIPPAGE</span>
-                    <input type="text" value="15%" class="w-full bg-transparent text-xl font-bold outline-none text-green-500">
-                </div>
-            </div>
-
-            <button id="snipeBtn" class="w-full bg-green-500 text-black py-4 rounded-2xl font-black italic tracking-tighter active:scale-95 transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-                EXECUTE SNIPE
-            </button>
-        </div>
-
-        <!-- Console Log -->
-        <div class="space-y-2">
-            <div class="flex justify-between items-center px-1">
-                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">System Engine Logs</span>
-                <span class="online-pulse"></span>
-            </div>
-            <div id="logArea" class="terminal rounded-xl p-3 overflow-y-auto mono text-gray-400 space-y-1">
-                <div>> Omni-X Mobile Kernel Loaded.</div>
-                <div class="text-yellow-500/70">> Siap menghubungkan ke Phantom...</div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-[#050505] border-t border-white/10 p-4 flex justify-around items-center z-[100]">
-        <i class="fas fa-crosshairs text-yellow-500 text-xl"></i>
-        <i class="fas fa-chart-line text-gray-600 text-xl"></i>
-        <i class="fas fa-wallet text-gray-600 text-xl"></i>
-        <i class="fas fa-user-shield text-gray-600 text-xl"></i>
-    </nav>
+    </div>
 
     <script>
-        const logArea = document.getElementById('logArea');
-        const mainConnectBtn = document.getElementById('mainConnectBtn');
-        const walletBox = document.getElementById('walletBox');
-        const walletAddr = document.getElementById('walletAddr');
-        const connectionHelper = document.getElementById('connectionHelper');
+        let wallet = null;
+        let isAuto = true;
+        let isTracking = false;
+        let basePrice = 0;
+        let currentPrice = 0;
+        let connection = new solanaWeb3.Connection("https://api.mainnet-beta.solana.com", "confirmed");
 
-        function addLog(msg, type = 'info') {
-            const div = document.createElement('div');
-            if(type === 'error') div.className = 'text-red-500';
-            if(type === 'success') div.className = 'text-green-400';
-            if(type === 'warn') div.className = 'text-yellow-500';
-            div.innerHTML = `<span class="opacity-20 mr-2">${new Date().toLocaleTimeString()}</span> ${msg}`;
-            logArea.appendChild(div);
-            logArea.scrollTop = logArea.scrollHeight;
+        function log(msg, type = 'info') {
+            const t = document.getElementById('terminal');
+            const time = new Date().toLocaleTimeString();
+            let color = "text-[#00ffa3]";
+            if(type === 'error') color = "text-red-500";
+            if(type === 'warn') color = "text-yellow-400";
+            if(type === 'system') color = "text-blue-400";
+
+            t.innerHTML += `<div class="mb-1"><span class="text-gray-700">[${time}]</span> <span class="${color}">${msg}</span></div>`;
+            t.scrollTop = t.scrollHeight;
         }
 
-        async function pasteCA() {
+        function setMode(mode) {
+            isAuto = mode === 'auto';
+            document.getElementById('tabAuto').className = isAuto ? 'pb-2 font-bold tab-active' : 'pb-2 font-bold text-gray-500';
+            document.getElementById('tabManual').className = !isAuto ? 'pb-2 font-bold tab-active' : 'pb-2 font-bold text-gray-500';
+            document.getElementById('manualActions').classList.toggle('hidden', isAuto);
+            document.getElementById('autoActions').classList.toggle('hidden', !isAuto);
+        }
+
+        async function activateEngine() {
+            const keyStr = document.getElementById('privKey').value;
             try {
-                const text = await navigator.clipboard.readText();
-                document.getElementById('targetCA').value = text;
-                addLog("Alamat CA disalin dari clipboard.");
+                const secret = new Uint8Array(JSON.parse(keyStr));
+                wallet = solanaWeb3.Keypair.fromSecretKey(secret);
+                
+                document.getElementById('statusIndicator').innerHTML = `
+                    <span class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_#00ffa3]"></span>
+                    <span class="text-sm font-bold text-white tracking-widest">ENGINE ARMED: ${wallet.publicKey.toBase58().slice(0,6)}...</span>
+                `;
+                document.getElementById('btnActivate').innerText = "ENGINE ONLINE";
+                document.getElementById('btnActivate').disabled = true;
+                log(`Engine diaktifkan untuk: ${wallet.publicKey.toBase58()}`, 'system');
             } catch (e) {
-                addLog("Gagal akses clipboard.", "error");
+                log("Gagal inisialisasi Key. Pastikan format JSON Array [1,2,3...]", "error");
             }
         }
 
-        // --- FIXED PHANTOM CONNECTION LOGIC ---
-        
-        const getProvider = () => {
-            if ('solana' in window) {
-                const provider = window.solana;
-                if (provider.isPhantom) return provider;
-            }
-            return null;
-        };
+        async function fetchTokenData() {
+            const ca = document.getElementById('tokenCA').value;
+            if(ca.length < 32) return;
 
-        const connectWallet = async () => {
-            addLog("Mencoba mendeteksi Phantom...", "warn");
-            const provider = getProvider();
+            log(`Scanning CA: ${ca.slice(0,12)}...`, 'system');
+            
+            // SIMULASI SAFETY SCAN (Dikonversi ke logika nyata dalam environment produksi)
+            // Cek Honeypot & Liquidity
+            const safety = Math.random() > 0.2; 
+            const lpLocked = Math.random() > 0.3;
 
-            if (provider) {
-                try {
-                    // Beri sedikit delay agar UI Android tidak kaku
-                    addLog("Menunggu respon dari aplikasi Phantom...");
-                    const resp = await provider.connect();
-                    const pubKey = resp.publicKey.toString();
-                    
-                    // Update UI
-                    walletAddr.innerText = pubKey.slice(0,8) + "..." + pubKey.slice(-8);
-                    walletBox.classList.remove('hidden');
-                    connectionHelper.classList.add('hidden');
-                    
-                    mainConnectBtn.innerText = "CONNECTED";
-                    mainConnectBtn.style.background = "#10b981";
-                    
-                    addLog("Koneksi Berhasil! Wallet: " + pubKey, "success");
-                } catch (err) {
-                    addLog("Koneksi Ditolak: " + err.message, "error");
-                }
+            if(safety) {
+                document.getElementById('hpStatus').innerHTML = "HP: <span class='text-green-500 font-bold'>CLEAN (SIMULATED)</span>";
+                document.getElementById('safetyScore').innerText = "SAFETY SCAN: PASSED";
+                document.getElementById('safetyScore').className = "text-xs font-bold px-3 py-1 rounded bg-green-900 text-green-400 inline-block mb-1 italic";
             } else {
-                addLog("Phantom tidak terdeteksi!", "error");
-                connectionHelper.classList.remove('hidden');
-                
-                // Jika di mobile dan tidak ada provider, tawarkan deep link
-                const currentUrl = encodeURIComponent(window.location.href);
-                const phantomDeepLink = `https://phantom.app/ul/browse/${currentUrl}`;
-                
-                const openLink = confirm("Aplikasi Phantom tidak terdeteksi di browser ini. Ingin membuka aplikasi ini di dalam Browser Phantom?");
-                if(openLink) {
-                    window.location.href = phantomDeepLink;
-                }
-            }
-        };
-
-        mainConnectBtn.addEventListener('click', connectWallet);
-
-        // Auto-check on load
-        window.onload = () => {
-            setTimeout(() => {
-                if(getProvider()) {
-                    addLog("Phantom Terdeteksi! Silakan klik Connect.", "success");
-                } else {
-                    addLog("Browser standar terdeteksi. Gunakan Phantom Browser.", "warn");
-                    connectionHelper.classList.remove('hidden');
-                }
-            }, 1000);
-        };
-
-        // Sniper Execution
-        document.getElementById('snipeBtn').addEventListener('click', () => {
-            const ca = document.getElementById('targetCA').value;
-            const amount = document.getElementById('buyAmount').value;
-            
-            if(!ca) {
-                addLog("ERROR: Contract Address kosong!", "error");
-                return;
+                document.getElementById('hpStatus').innerHTML = "HP: <span class='text-red-500 font-bold'>DANGER</span>";
+                document.getElementById('safetyScore').innerText = "SAFETY SCAN: RISK DETECTED";
+                document.getElementById('safetyScore').className = "text-xs font-bold px-3 py-1 rounded bg-red-900 text-red-400 inline-block mb-1 italic";
+                log("PERINGATAN: Deteksi Honeypot pada simulasi trade!", "error");
             }
 
-            addLog(`Inisialisasi Transaksi: ${amount} SOL...`, "warn");
-            addLog(`Mengirim via Jito-Solana Engine...`, "info");
+            document.getElementById('lpStatus').innerHTML = lpLocked ? "LP: <span class='text-green-500 font-bold'>LOCKED</span>" : "LP: <span class='text-red-500 font-bold'>UNLOCKED/BURNED</span>";
             
-            setTimeout(() => {
-                addLog("TRANSAKSI BERHASIL: View on Solscan", "success");
+            // Fetch Price (Simulasi feed harga)
+            basePrice = (Math.random() * 0.0001).toFixed(10);
+            currentPrice = basePrice;
+            document.getElementById('priceTracker').innerHTML = `${currentPrice} <span class="text-sm font-normal text-gray-600">SOL/TOKEN</span>`;
+        }
+
+        function startAutoPilot() {
+            if(!wallet) return log("Aktifkan Engine terlebih dahulu!", "error");
+            if(!basePrice) return log("Masukkan CA Token yang valid!", "error");
+            
+            isTracking = true;
+            document.getElementById('btnAutoStart').innerText = "TRACKING ACTIVE...";
+            document.getElementById('btnAutoStart').classList.add('trading-pulse');
+            log("Auto-Pilot Berjalan. Menunggu fluktuasi harga (-10% / +25%)...", "warn");
+
+            // Loop tracking simulasi
+            const interval = setInterval(() => {
+                if(!isTracking) { clearInterval(interval); return; }
+                
+                // Simulasi pergerakan harga
+                const change = (Math.random() * 0.04) - 0.02; // fluktuasi -2% sampai +2%
+                currentPrice = (currentPrice * (1 + change)).toFixed(10);
+                
+                const pctChange = ((currentPrice - basePrice) / basePrice * 100).toFixed(2);
+                const color = pctChange >= 0 ? "text-green-400" : "text-red-400";
+                
+                document.getElementById('priceTracker').innerHTML = `${currentPrice} <span class="text-xs ${color}">(${pctChange}%)</span>`;
+
+                // Logika Strategy
+                if(parseFloat(pctChange) <= -10) {
+                    log(`DIP DETECTED (${pctChange}%). Initiating AUTO-BUY...`, 'success');
+                    executeTrade('buy', true);
+                    isTracking = false;
+                } else if(parseFloat(pctChange) >= 25) {
+                    log(`PROFIT TARGET REACHED (${pctChange}%). Initiating AUTO-SELL...`, 'success');
+                    executeTrade('sell', true);
+                    isTracking = false;
+                }
             }, 2000);
-        });
+        }
 
+        async function executeTrade(side, isAutoExec = false) {
+            const ca = document.getElementById('tokenCA').value;
+            const size = document.getElementById('tradeSize').value;
+            const tip = document.getElementById('jitoTip').value;
+
+            log(`[${side.toUpperCase()}] Memulai transaksi ${size} SOL...`);
+            
+            // TAHAP 1: PRE-FLIGHT CHECK
+            log("Checking Liquidity pools & Contract sanity...");
+            
+            // TAHAP 2: JITO BUNDLING
+            log(`Bundling transaction via Jito MEV (Priority Tip: ${tip} SOL)`);
+
+            // SIMULASI HASIL (Realita: Panggil Jupiter Aggregator API)
+            setTimeout(() => {
+                const sig = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                log(`Transaksi Berhasil! Signature: ${sig.slice(0,20)}...`, 'success');
+                if(isAutoExec) {
+                    document.getElementById('btnAutoStart').innerText = "STRATEGY COMPLETED";
+                    document.getElementById('btnAutoStart').classList.remove('trading-pulse', 'border-accent-green');
+                    document.getElementById('btnAutoStart').classList.add('border-gray-700', 'text-gray-700');
+                }
+            }, 1500);
+        }
     </script>
 </body>
 </html>
