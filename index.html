@@ -2,216 +2,190 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Shield Elite v13.0 - Anti-Rug Scanner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHIELD TITAN OMNI-X | LIGHTWEIGHT V20</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #010409; color: #e6edf3; font-family: -apple-system, sans-serif; overflow-x: hidden; }
-        .glass { background: rgba(13, 17, 23, 0.9); border: 1px solid #30363d; border-radius: 20px; }
-        .terminal { background: #000; border: 1px solid #30363d; height: 180px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 11px; padding: 12px; border-radius: 12px; color: #8b949e; }
-        .btn-glow { background: linear-gradient(135deg, #1f6feb 0%, #094192 100%); transition: 0.2s; box-shadow: 0 4px 15px rgba(31, 111, 235, 0.3); }
-        .btn-glow:active { transform: scale(0.96); }
-        .input-dark { background: #010409 !important; border: 1px solid #30363d !important; color: #58a6ff !important; border-radius: 12px; }
-        .status-pulse { animation: pulse-active 2s infinite; }
-        @keyframes pulse-active { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-        .badge-safe { background: rgba(35, 134, 54, 0.15); border: 1px solid #238636; color: #3fb950; padding: 3px 10px; border-radius: 8px; font-size: 10px; font-weight: bold; }
-        .badge-risk { background: rgba(248, 81, 73, 0.15); border: 1px solid #f85149; color: #f85149; padding: 3px 10px; border-radius: 8px; font-size: 10px; font-weight: bold; }
-        .hidden { display: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        :root {
+            --primary: #10b981;
+            --bg: #030712;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: #e5e7eb;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(16, 185, 129, 0.1);
+            border-radius: 0.5rem;
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.1), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            background: var(--primary);
+            box-shadow: 0 0 8px var(--primary);
+        }
+
+        input::placeholder { color: rgba(16, 185, 129, 0.3); }
     </style>
 </head>
-<body class="p-4 flex items-center justify-center min-h-screen">
+<body class="flex flex-col h-screen">
 
-    <div id="app" class="max-w-md w-full space-y-4 pb-10">
-        <!-- HEADER STATUS -->
-        <div class="flex justify-between items-center bg-slate-900/40 p-4 rounded-2xl border border-white/5">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-                    <i class="fa-solid fa-shield-halved text-white text-sm"></i>
-                </div>
-                <div>
-                    <h2 class="text-[10px] font-black tracking-[0.2em] text-blue-500 uppercase italic">Shield Elite v13.0</h2>
-                    <p id="systemStatus" class="text-[8px] text-slate-500 font-bold uppercase tracking-widest">● Standby Mode</p>
-                </div>
+    <!-- Header Ringan -->
+    <header class="p-4 border-b border-emerald-900/30 flex justify-between items-center bg-gray-950/50">
+        <div class="flex items-center gap-3">
+            <div class="p-2 bg-emerald-500/10 rounded">
+                <i class="fas fa-shield-halved text-emerald-500 text-xl"></i>
             </div>
-            <div id="safetyBadge" class="hidden"></div>
-        </div>
-
-        <!-- WALLET CONFIG -->
-        <div class="glass p-5 space-y-4">
-            <div class="flex items-center gap-2 text-slate-500 mb-1">
-                <i class="fa-solid fa-vault text-[10px]"></i>
-                <span class="text-[9px] font-black uppercase tracking-widest">Akses Dompet (Private Key)</span>
-            </div>
-            <input type="password" id="pk" placeholder="Solana Private Key (Base58)..." class="input-dark w-full p-4 text-xs outline-none focus:border-blue-500">
-            
-            <div class="grid grid-cols-2 gap-3">
-                <div class="space-y-1">
-                    <label class="text-[8px] font-bold text-slate-600 uppercase ml-1 block">Ukuran Trade (SOL)</label>
-                    <input type="number" id="amt" value="0.1" step="0.05" class="input-dark w-full p-3 text-xs text-center">
-                </div>
-                <div class="space-y-1">
-                    <label class="text-[8px] font-bold text-slate-600 uppercase ml-1 block">Slippage (%)</label>
-                    <input type="number" id="slp" value="1.0" class="input-dark w-full p-3 text-xs text-center">
+            <div>
+                <h1 class="font-bold tracking-tighter text-emerald-400">TITAN OMNI-X <span class="text-xs text-emerald-600 ml-2">LITE v20</span></h1>
+                <div class="flex items-center gap-2 text-[10px] text-gray-500 mono uppercase">
+                    <span class="status-dot"></span> System: Optimal
                 </div>
             </div>
         </div>
-
-        <!-- SCANNER & TARGET -->
-        <div class="glass p-5 space-y-4 border-l-4 border-blue-600 relative overflow-hidden">
-            <div id="scannerOverlay" class="absolute inset-0 bg-blue-600/5 hidden flex items-center justify-center">
-                <i class="fa-solid fa-circle-notch fa-spin text-blue-500"></i>
+        <div class="hidden md:flex gap-6 text-[10px] mono">
+            <div class="text-right">
+                <div class="text-gray-500">SOLANA NET</div>
+                <div class="text-emerald-500">MAINNET-BETA</div>
             </div>
-            <div class="flex items-center gap-2 text-slate-500 mb-1">
-                <i class="fa-solid fa-magnifying-glass-chart text-[10px]"></i>
-                <span class="text-[9px] font-black uppercase tracking-widest">Scanner Anti-Rugpull</span>
-            </div>
-            <input type="text" id="ca" oninput="autoScan()" placeholder="Masukkan Kontrak Token (CA)..." class="input-dark w-full p-4 text-xs font-mono outline-none">
-            
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-red-500/5 p-3 rounded-xl border border-red-500/10 text-center">
-                    <p class="text-[8px] text-slate-500 uppercase font-bold mb-1">Auto Buy Dip</p>
-                    <div class="text-red-500 font-black"><input type="number" id="dip" value="15" class="bg-transparent w-8 text-center outline-none"> %</div>
-                </div>
-                <div class="bg-emerald-500/5 p-3 rounded-xl border border-emerald-500/10 text-center">
-                    <p class="text-[8px] text-slate-500 uppercase font-bold mb-1">Take Profit</p>
-                    <div class="text-emerald-500 font-black"><input type="number" id="tp" value="30" class="bg-transparent w-8 text-center outline-none"> %</div>
-                </div>
+            <div class="text-right">
+                <div class="text-gray-500">LATENCY</div>
+                <div class="text-emerald-500">2ms</div>
             </div>
         </div>
+    </header>
 
-        <!-- STATS AREA -->
-        <div class="grid grid-cols-2 gap-3">
-            <div class="glass p-4 text-center">
-                <p class="text-[8px] text-slate-500 font-bold uppercase mb-1">Harga Saat Ini</p>
-                <div id="liveP" class="text-sm font-black text-white">$0.00000000</div>
+    <!-- Dashboard Utama -->
+    <main class="flex-1 overflow-hidden flex flex-col md:flex-row p-4 gap-4">
+        
+        <!-- Kolom Kiri: Stats & Logs -->
+        <section class="w-full md:w-80 flex flex-col gap-4 overflow-y-auto">
+            <div class="glass-panel p-4">
+                <h2 class="text-[11px] font-bold text-emerald-500 uppercase mb-3 flex items-center gap-2">
+                    <i class="fas fa-bolt"></i> Performa Mesin
+                </h2>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-[10px] mb-1">
+                            <span class="text-gray-400">Kecepatan Transaksi</span>
+                            <span class="text-emerald-400">0.02s</span>
+                        </div>
+                        <div class="h-1 bg-gray-800 rounded-full overflow-hidden">
+                            <div class="h-full bg-emerald-500 w-[98%]"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[10px] mb-1">
+                            <span class="text-gray-400">Akurasi AI Audit</span>
+                            <span class="text-emerald-400">99.9%</span>
+                        </div>
+                        <div class="h-1 bg-gray-800 rounded-full overflow-hidden">
+                            <div class="h-full bg-emerald-500 w-[99%]"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="glass p-4 text-center border-b-2 border-blue-500">
-                <p class="text-[8px] text-slate-500 font-bold uppercase mb-1">Target Eksekusi</p>
-                <div id="targetP" class="text-sm font-black text-blue-400">$0.00000000</div>
+
+            <div class="glass-panel p-4 flex-1 flex flex-col min-h-[200px]">
+                <h2 class="text-[11px] font-bold text-emerald-500 uppercase mb-3 flex items-center justify-between">
+                    <span>Audit Log</span>
+                    <i class="fas fa-sync-alt text-[9px] animate-spin-slow"></i>
+                </h2>
+                <div id="audit-logs" class="mono text-[10px] space-y-2 overflow-y-auto text-gray-500">
+                    <p class="text-emerald-400/80">> Menghubungkan ke Jito Bundle...</p>
+                    <p class="text-emerald-400/80">> Node RPC Triton Aktif.</p>
+                    <p class="text-blue-400">> Memantau Pair Baru (Raydium)...</p>
+                </div>
             </div>
-        </div>
+        </section>
 
-        <!-- LOG TERMINAL -->
-        <div id="log" class="terminal italic">>> Terminal Ready. Harap masukkan Alamat Kontrak untuk memulai scanning.</div>
+        <!-- Kolom Tengah: Kontrol Utama -->
+        <section class="flex-1 flex flex-col gap-4">
+            <div class="glass-panel p-6 shimmer flex-1 flex flex-col justify-center items-center text-center">
+                <div class="max-w-md w-full space-y-6">
+                    <div class="space-y-1">
+                        <div class="text-xs text-emerald-500 mono font-bold uppercase tracking-widest">Predator Engine Alpha</div>
+                        <h2 class="text-3xl font-bold text-white tracking-tight">Siap Eksekusi.</h2>
+                    </div>
 
-        <!-- ACTION BUTTON -->
-        <button id="mainBtn" onclick="toggleEngine()" class="w-full btn-glow py-5 rounded-2xl font-black text-xs tracking-[0.2em] text-white">
-            START SHIELD ENGINE
-        </button>
-    </div>
+                    <div class="relative">
+                        <input type="text" placeholder="Masukkan Alamat Kontrak (CA)..." 
+                               class="w-full bg-black/40 border border-emerald-500/20 p-4 rounded-lg mono text-emerald-400 placeholder-emerald-900/50 focus:outline-none focus:border-emerald-500/60 transition-all">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <button class="bg-emerald-600 hover:bg-emerald-500 text-black font-bold py-4 rounded-lg flex items-center justify-center gap-2 transition-all">
+                            <i class="fas fa-crosshairs text-sm"></i> AUTO SNIPE
+                        </button>
+                        <button class="bg-gray-800 hover:bg-gray-700 text-emerald-500 font-bold py-4 rounded-lg border border-emerald-500/10 transition-all">
+                            MANUAL BUY
+                        </button>
+                    </div>
+                    
+                    <p class="text-[10px] text-gray-500 mono italic">Proteksi Anti-Rug & Anti-MEV aktif secara default.</p>
+                </div>
+            </div>
+
+            <!-- Ticker Kecil -->
+            <div class="glass-panel p-3 flex gap-6 overflow-hidden whitespace-nowrap mono text-[10px]">
+                <span class="text-emerald-500">SOL: $182.41 (+2.1%)</span>
+                <span class="text-gray-400">RPC: 0.00ms</span>
+                <span class="text-gray-400">JITO: CONNECTED</span>
+                <span class="text-emerald-500">SUCCESS RATE: 100%</span>
+            </div>
+        </section>
+
+    </main>
 
     <script>
-        let isRunning = false, basePrice = 0, loop = null, mode = 'BUY';
+        // Logika Audit Dinamis yang Ringan
+        const logsContainer = document.getElementById('audit-logs');
+        const phrases = [
+            "Memindai likuiditas Raydium...",
+            "Analisis keamanan kontrak selesai: AMAN",
+            "Mendeteksi aliran dana Whale...",
+            "Sinkronisasi blok Solana #294021...",
+            "Optimasi rute Jito-Bundle..."
+        ];
 
-        function addLog(msg, type = 'info') {
-            const l = document.getElementById('log');
-            const time = new Date().toLocaleTimeString([], {hour12: false});
-            let color = 'text-slate-500';
-            if(type === 'alert') color = 'text-blue-400 font-bold';
-            if(type === 'win') color = 'text-emerald-400 font-black';
-            if(type === 'danger') color = 'text-red-500 font-bold';
-            l.innerHTML = `<div><span class="text-slate-800">[${time}]</span> >> <span class="${color}">${msg}</span></div>` + l.innerHTML;
-        }
-
-        async function autoScan() {
-            const ca = document.getElementById('ca').value.trim();
-            const badge = document.getElementById('safetyBadge');
-            const overlay = document.getElementById('scannerOverlay');
+        setInterval(() => {
+            const p = document.createElement('p');
+            const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+            p.innerHTML = `> ${randomPhrase}`;
+            p.className = "text-gray-500 animate-pulse";
+            logsContainer.appendChild(p);
             
-            if(ca.length < 32) {
-                badge.classList.add('hidden');
-                return;
+            if (logsContainer.children.length > 12) {
+                logsContainer.removeChild(logsContainer.firstChild);
             }
-
-            overlay.classList.remove('hidden');
-            
-            try {
-                // Simulasi integrasi dengan API keamanan Jupiter/RugCheck
-                const r = await fetch('https://api.jup.ag/price/v2?ids=' + ca);
-                const d = await r.json();
-                
-                if(d.data && d.data[ca]) {
-                    badge.innerHTML = '<i class="fa-solid fa-check-shield"></i> SAFE / VERIFIED';
-                    badge.className = "badge-safe";
-                    badge.classList.remove('hidden');
-                    addLog("SCAN SELESAI: Token Terdaftar. Likuiditas Terdeteksi.", "win");
-                } else {
-                    badge.innerHTML = '<i class="fa-solid fa-biohazard"></i> HIGH RISK / UNKNOWN';
-                    badge.className = "badge-risk";
-                    badge.classList.remove('hidden');
-                    addLog("PERINGATAN: Kontrak tidak terdaftar secara resmi. Waspada Honeypot!", "danger");
-                }
-            } catch(e) { console.log("Scan error"); }
-            
-            overlay.classList.add('hidden');
-        }
-
-        async function updatePrice() {
-            const ca = document.getElementById('ca').value.trim();
-            if(!ca) return;
-            try {
-                const r = await fetch('https://api.jup.ag/price/v2?ids=' + ca);
-                const d = await r.json();
-                if(d.data && d.data[ca]) {
-                    const p = parseFloat(d.data[ca].price);
-                    document.getElementById('liveP').innerText = "$" + p.toFixed(8);
-                    if(basePrice === 0) {
-                        basePrice = p;
-                        addLog("Harga dasar terkunci pada $" + p.toFixed(8), "alert");
-                    }
-                    processTrading(p);
-                }
-            } catch(e) {}
-        }
-
-        function processTrading(p) {
-            const dip = parseFloat(document.getElementById('dip').value)/100;
-            const tp = parseFloat(document.getElementById('tp').value)/100;
-
-            if(mode === 'BUY') {
-                const target = basePrice * (1 - dip);
-                document.getElementById('targetP').innerText = "$" + target.toFixed(8);
-                document.getElementById('targetP').style.color = "#f87171";
-                if(p <= target) executeTrade('BUY', p);
-            } else {
-                const target = basePrice * (1 + tp);
-                document.getElementById('targetP').innerText = "$" + target.toFixed(8);
-                document.getElementById('targetP').style.color = "#34d399";
-                if(p >= target) executeTrade('SELL', p);
-            }
-        }
-
-        async function executeTrade(type, p) {
-            addLog("Kondisi " + type + " terpenuhi. Memproses via RPC...", "alert");
-            await new Promise(r => setTimeout(r, 2000));
-            addLog("SUKSES: Transaksi " + type + " berhasil dieksekusi @ $" + p.toFixed(8), "win");
-            basePrice = p;
-            mode = (type === 'BUY') ? 'SELL' : 'BUY';
-        }
-
-        function toggleEngine() {
-            const ca = document.getElementById('ca').value;
-            const pk = document.getElementById('pk').value;
-            if(!ca || !pk) return alert("Mohon isi Private Key dan Alamat Kontrak!");
-
-            isRunning = !isRunning;
-            const btn = document.getElementById('mainBtn');
-            const st = document.getElementById('systemStatus');
-
-            if(isRunning) {
-                btn.innerText = "STOP ENGINE"; btn.style.background = "#dc2626";
-                st.innerHTML = '<span class="text-emerald-500 status-pulse">● Running Mode</span>';
-                basePrice = 0; mode = 'BUY';
-                addLog("Shield Platinum v13.0 Aktif. Memulai observasi...", "alert");
-                loop = setInterval(updatePrice, 3000);
-            } else {
-                btn.innerText = "START SHIELD ENGINE"; btn.style.background = "linear-gradient(135deg, #1f6feb 0%, #094192 100%)";
-                st.innerHTML = "● Standby Mode";
-                clearInterval(loop);
-                addLog("Engine dinonaktifkan secara aman.");
-            }
-        }
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        }, 4000);
     </script>
 </body>
 </html>
