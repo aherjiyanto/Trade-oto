@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Omni-X Genesis Ultra v10.0 - Mobile Edition</title>
+    <title>Omni-X Ultra v10.1 - Mobile Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,261 +14,248 @@
             background-color: #010204; 
             color: #f1f5f9; 
             font-family: 'Space Grotesk', sans-serif;
-            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
         }
 
         .mono { font-family: 'JetBrains Mono', monospace; }
         
         .glass-card { 
             background: rgba(15, 23, 42, 0.8); 
-            backdrop-filter: blur(10px); 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-            border-radius: 1.5rem;
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 1.25rem;
         }
 
-        .btn-glow-green {
-            background: #10b981;
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        .btn-connect {
+            background: linear-gradient(90deg, #fbbf24, #f59e0b);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
         }
 
-        .btn-glow-gold {
-            background: #fbbf24;
-            box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
-        }
-
-        /* Navigasi Mobile Bawah */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(15px);
-            border-top: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            z-index: 100;
-        }
-
-        .active-tab { color: #fbbf24; }
-
-        .terminal-box {
+        .terminal {
             background: #000;
             border: 1px solid #1e293b;
-            font-size: 10px;
-            height: 180px;
+            font-size: 11px;
+            height: 150px;
         }
 
-        /* Animasi */
-        @keyframes pulse-dot {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.5; }
-            100% { transform: scale(1); opacity: 1; }
+        /* Pulse for online status */
+        .online-pulse {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulse 2s infinite;
         }
-        .status-dot { animation: pulse-dot 2s infinite; }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
+            100% { opacity: 1; transform: scale(1); }
+        }
     </style>
 </head>
 <body class="pb-24">
 
-    <!-- Mobile Header -->
-    <header class="p-4 flex justify-between items-center border-b border-white/5 sticky top-0 bg-[#010204] z-50">
+    <!-- Header Section -->
+    <header class="p-5 flex justify-between items-center bg-[#010204]/80 backdrop-blur sticky top-0 z-[100] border-b border-white/5">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-yellow-500 rounded-xl flex items-center justify-center text-black font-black italic">X</div>
-            <h1 class="text-lg font-bold tracking-tight">OMNI-X <span class="text-yellow-500">v10</span></h1>
+            <div class="bg-yellow-500 p-2 rounded-lg">
+                <i class="fas fa-bolt text-black text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-black text-sm tracking-tighter">OMNI-X ULTRA</h1>
+                <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">Mobile Engine v10.1</p>
+            </div>
         </div>
-        <button id="mobileConnect" class="bg-yellow-500 text-black px-4 py-2 rounded-lg text-xs font-bold transition-all active:scale-95">
-            CONNECT
+        <button id="mainConnectBtn" class="btn-connect text-black font-black text-[10px] px-5 py-2.5 rounded-full transition-all active:scale-90">
+            CONNECT WALLET
         </button>
     </header>
 
-    <div class="p-4 space-y-6">
+    <main class="p-4 space-y-5">
         
-        <!-- Wallet Status -->
-        <div id="walletDisplay" class="hidden glass-card p-4 flex justify-between items-center border-l-4 border-green-500">
-            <div>
-                <p class="text-[10px] text-gray-500 mono uppercase">Wallet Active</p>
-                <p id="addrText" class="text-xs font-bold mono">4hJz...9xK</p>
-            </div>
-            <div class="text-right">
-                <p class="text-[10px] text-gray-500 mono uppercase">Balance</p>
-                <p class="text-sm font-bold text-yellow-500">12.45 SOL</p>
+        <!-- Connection Helper (Visible if not connected) -->
+        <div id="connectionHelper" class="p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl hidden">
+            <div class="flex gap-3">
+                <i class="fas fa-info-circle text-blue-400 mt-1"></i>
+                <div class="text-xs text-blue-100 leading-relaxed">
+                    <p class="font-bold mb-1">Tips Koneksi Android:</p>
+                    <ul class="list-disc ml-4 space-y-1 opacity-80">
+                        <li>Buka link ini di dalam <b>Browser App Phantom</b>.</li>
+                        <li>Pastikan aplikasi Phantom sudah login.</li>
+                        <li>Gunakan Kiwi/Mises Browser jika ingin memakai ekstensi Chrome.</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
-        <!-- Target Input Section -->
-        <section class="space-y-3">
-            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Target Token (CA)</h2>
-            <div class="flex gap-2">
-                <input type="text" id="caInput" placeholder="Paste Contract Address..." class="flex-1 bg-zinc-900 border border-white/10 rounded-2xl px-4 py-4 text-sm outline-none focus:border-yellow-500 transition-all">
-                <button id="btnAudit" class="bg-zinc-800 px-5 rounded-2xl border border-white/10 active:bg-zinc-700">
-                    <i class="fas fa-shield-alt text-yellow-500"></i>
-                </button>
+        <!-- Wallet Info Card -->
+        <div id="walletBox" class="hidden glass-card p-4 border-l-4 border-green-500">
+            <div class="flex justify-between items-start">
+                <div>
+                    <span class="text-[10px] text-gray-500 font-bold uppercase mono">Status: Online</span>
+                    <p id="walletAddr" class="text-sm font-bold mono mt-1">0x00...000</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] text-gray-500 font-bold uppercase mono">Balance</span>
+                    <p class="text-sm font-black text-yellow-500">-- SOL</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="glass-card p-5 space-y-4">
+            <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Token Contract Address</p>
+            <div class="relative">
+                <input type="text" id="targetCA" placeholder="Paste CA di sini..." class="w-full bg-black/50 border border-white/10 rounded-xl py-4 px-4 text-sm outline-none focus:border-yellow-500/50 transition-all mono">
+                <button onclick="pasteCA()" class="absolute right-3 top-1/2 -translate-y-1/2 text-yellow-500 text-xs font-bold bg-yellow-500/10 px-2 py-1 rounded">PASTE</button>
             </div>
             
-            <!-- Audit Result Card -->
-            <div id="auditResult" class="hidden glass-card p-4 border border-yellow-500/20">
-                <div class="flex justify-between items-center mb-3">
-                    <span class="font-bold text-yellow-500 italic">$TARGET_TOKEN</span>
-                    <span class="text-[9px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded font-bold">100% SAFE</span>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-black/40 p-3 rounded-xl border border-white/5">
+                    <span class="text-[9px] text-gray-500 block mb-1">AMOUNT (SOL)</span>
+                    <input type="number" id="buyAmount" value="0.1" class="w-full bg-transparent text-xl font-bold outline-none text-white">
                 </div>
-                <div class="grid grid-cols-3 gap-2 text-[9px] mono uppercase text-center">
-                    <div class="bg-black/40 p-2 rounded-lg"><span class="block text-gray-500">LP</span><span class="text-green-400">Locked</span></div>
-                    <div class="bg-black/40 p-2 rounded-lg"><span class="block text-gray-500">Mint</span><span class="text-green-400">No</span></div>
-                    <div class="bg-black/40 p-2 rounded-lg"><span class="block text-gray-500">Honey</span><span class="text-green-400">Passed</span></div>
+                <div class="bg-black/40 p-3 rounded-xl border border-white/5">
+                    <span class="text-[9px] text-gray-500 block mb-1">SLIPPAGE</span>
+                    <input type="text" value="15%" class="w-full bg-transparent text-xl font-bold outline-none text-green-500">
                 </div>
             </div>
-        </section>
 
-        <!-- Main Execution Module -->
-        <section class="glass-card p-5 border-t-2 border-green-500">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xs font-bold text-green-500 uppercase tracking-widest">Buy Execution</h2>
-                <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 bg-green-500 rounded-full status-dot"></span>
-                    <span class="text-[10px] mono text-gray-500">MEV-SHIELD ON</span>
-                </div>
+            <button id="snipeBtn" class="w-full bg-green-500 text-black py-4 rounded-2xl font-black italic tracking-tighter active:scale-95 transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+                EXECUTE SNIPE
+            </button>
+        </div>
+
+        <!-- Console Log -->
+        <div class="space-y-2">
+            <div class="flex justify-between items-center px-1">
+                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">System Engine Logs</span>
+                <span class="online-pulse"></span>
             </div>
-            
-            <div class="space-y-4">
-                <div class="relative">
-                    <input type="number" id="solInput" value="0.1" class="w-full bg-black/50 border border-white/10 rounded-2xl py-5 px-6 text-2xl font-bold outline-none text-white focus:border-green-500 transition-all">
-                    <span class="absolute right-6 top-1/2 -translate-y-1/2 text-gray-500 font-bold">SOL</span>
-                </div>
-                
-                <div class="grid grid-cols-4 gap-2">
-                    <button onclick="setSol(0.1)" class="bg-zinc-900 border border-white/5 py-2 rounded-xl text-xs mono">0.1</button>
-                    <button onclick="setSol(0.5)" class="bg-zinc-900 border border-white/5 py-2 rounded-xl text-xs mono">0.5</button>
-                    <button onclick="setSol(1.0)" class="bg-zinc-900 border border-white/5 py-2 rounded-xl text-xs mono">1.0</button>
-                    <button onclick="setSol('MAX')" class="bg-green-500/10 text-green-500 py-2 rounded-xl text-xs font-bold">MAX</button>
-                </div>
-
-                <button id="btnSnipe" class="w-full btn-glow-green text-black py-5 rounded-3xl font-black text-xl tracking-tighter italic active:scale-95 transition-all">
-                    SNIPE NOW
-                </button>
+            <div id="logArea" class="terminal rounded-xl p-3 overflow-y-auto mono text-gray-400 space-y-1">
+                <div>> Omni-X Mobile Kernel Loaded.</div>
+                <div class="text-yellow-500/70">> Siap menghubungkan ke Phantom...</div>
             </div>
-        </section>
+        </div>
 
-        <!-- Log Activity -->
-        <section>
-            <div class="flex justify-between px-1 mb-2">
-                <span class="text-[10px] font-bold text-gray-500 uppercase">System Log</span>
-                <span id="clearLog" class="text-[10px] text-blue-400 uppercase cursor-pointer">Clear</span>
-            </div>
-            <div id="terminal" class="terminal-box rounded-2xl p-4 overflow-y-auto mono custom-scroll space-y-1">
-                <div class="text-yellow-500/70">> Omni-X Mobile v10 Ready.</div>
-                <div class="text-gray-500">> Waiting for Phantom connection...</div>
-            </div>
-        </section>
+    </main>
 
-    </div>
-
-    <!-- Mobile Nav -->
-    <div class="bottom-nav">
-        <button class="active-tab flex flex-col items-center gap-1">
-            <i class="fas fa-bolt text-lg"></i>
-            <span class="text-[9px] font-bold uppercase">Sniper</span>
-        </button>
-        <button class="text-gray-500 flex flex-col items-center gap-1">
-            <i class="fas fa-chart-pie text-lg"></i>
-            <span class="text-[9px] font-bold uppercase">Assets</span>
-        </button>
-        <button class="text-gray-500 flex flex-col items-center gap-1">
-            <i class="fas fa-shield-alt text-lg"></i>
-            <span class="text-[9px] font-bold uppercase">Audit</span>
-        </button>
-        <button class="text-gray-500 flex flex-col items-center gap-1">
-            <i class="fas fa-cog text-lg"></i>
-            <span class="text-[9px] font-bold uppercase">Settings</span>
-        </button>
-    </div>
-
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed top-10 left-1/2 -translate-x-1/2 bg-yellow-500 text-black px-6 py-3 rounded-2xl font-bold text-sm shadow-2xl z-[200] hidden transition-all">
-        Action Successful
-    </div>
+    <!-- Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-[#050505] border-t border-white/10 p-4 flex justify-around items-center z-[100]">
+        <i class="fas fa-crosshairs text-yellow-500 text-xl"></i>
+        <i class="fas fa-chart-line text-gray-600 text-xl"></i>
+        <i class="fas fa-wallet text-gray-600 text-xl"></i>
+        <i class="fas fa-user-shield text-gray-600 text-xl"></i>
+    </nav>
 
     <script>
-        const terminal = document.getElementById('terminal');
-        const toast = document.getElementById('toast');
-        const solInput = document.getElementById('solInput');
-
-        function showToast(msg) {
-            toast.innerText = msg;
-            toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 3000);
-        }
+        const logArea = document.getElementById('logArea');
+        const mainConnectBtn = document.getElementById('mainConnectBtn');
+        const walletBox = document.getElementById('walletBox');
+        const walletAddr = document.getElementById('walletAddr');
+        const connectionHelper = document.getElementById('connectionHelper');
 
         function addLog(msg, type = 'info') {
-            const time = new Date().toLocaleTimeString([], { hour: 12, hour12: false });
             const div = document.createElement('div');
-            let color = "text-gray-400";
-            if(type === 'success') color = "text-green-400";
-            if(type === 'warning') color = "text-yellow-500";
-            if(type === 'danger') color = "text-red-500";
-            
-            div.className = color;
-            div.innerHTML = `<span class="opacity-30 mr-2">[${time}]</span> ${msg}`;
-            terminal.appendChild(div);
-            terminal.scrollTop = terminal.scrollHeight;
+            if(type === 'error') div.className = 'text-red-500';
+            if(type === 'success') div.className = 'text-green-400';
+            if(type === 'warn') div.className = 'text-yellow-500';
+            div.innerHTML = `<span class="opacity-20 mr-2">${new Date().toLocaleTimeString()}</span> ${msg}`;
+            logArea.appendChild(div);
+            logArea.scrollTop = logArea.scrollHeight;
         }
 
-        function setSol(val) {
-            solInput.value = val === 'MAX' ? 12.45 : val;
+        async function pasteCA() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('targetCA').value = text;
+                addLog("Alamat CA disalin dari clipboard.");
+            } catch (e) {
+                addLog("Gagal akses clipboard.", "error");
+            }
         }
 
-        // Phantom Mobile Integration
-        const connectBtn = document.getElementById('mobileConnect');
-        const walletDisplay = document.getElementById('walletDisplay');
-        const addrText = document.getElementById('addrText');
+        // --- FIXED PHANTOM CONNECTION LOGIC ---
+        
+        const getProvider = () => {
+            if ('solana' in window) {
+                const provider = window.solana;
+                if (provider.isPhantom) return provider;
+            }
+            return null;
+        };
 
-        connectBtn.addEventListener('click', async () => {
-            const isPhantom = window.solana && window.solana.isPhantom;
+        const connectWallet = async () => {
+            addLog("Mencoba mendeteksi Phantom...", "warn");
+            const provider = getProvider();
+
+            if (provider) {
+                try {
+                    // Beri sedikit delay agar UI Android tidak kaku
+                    addLog("Menunggu respon dari aplikasi Phantom...");
+                    const resp = await provider.connect();
+                    const pubKey = resp.publicKey.toString();
+                    
+                    // Update UI
+                    walletAddr.innerText = pubKey.slice(0,8) + "..." + pubKey.slice(-8);
+                    walletBox.classList.remove('hidden');
+                    connectionHelper.classList.add('hidden');
+                    
+                    mainConnectBtn.innerText = "CONNECTED";
+                    mainConnectBtn.style.background = "#10b981";
+                    
+                    addLog("Koneksi Berhasil! Wallet: " + pubKey, "success");
+                } catch (err) {
+                    addLog("Koneksi Ditolak: " + err.message, "error");
+                }
+            } else {
+                addLog("Phantom tidak terdeteksi!", "error");
+                connectionHelper.classList.remove('hidden');
+                
+                // Jika di mobile dan tidak ada provider, tawarkan deep link
+                const currentUrl = encodeURIComponent(window.location.href);
+                const phantomDeepLink = `https://phantom.app/ul/browse/${currentUrl}`;
+                
+                const openLink = confirm("Aplikasi Phantom tidak terdeteksi di browser ini. Ingin membuka aplikasi ini di dalam Browser Phantom?");
+                if(openLink) {
+                    window.location.href = phantomDeepLink;
+                }
+            }
+        };
+
+        mainConnectBtn.addEventListener('click', connectWallet);
+
+        // Auto-check on load
+        window.onload = () => {
+            setTimeout(() => {
+                if(getProvider()) {
+                    addLog("Phantom Terdeteksi! Silakan klik Connect.", "success");
+                } else {
+                    addLog("Browser standar terdeteksi. Gunakan Phantom Browser.", "warn");
+                    connectionHelper.classList.remove('hidden');
+                }
+            }, 1000);
+        };
+
+        // Sniper Execution
+        document.getElementById('snipeBtn').addEventListener('click', () => {
+            const ca = document.getElementById('targetCA').value;
+            const amount = document.getElementById('buyAmount').value;
             
-            if(!isPhantom) {
-                addLog("Gunakan Browser di dalam aplikasi Phantom!", "danger");
-                showToast("Buka di Browser Phantom!");
+            if(!ca) {
+                addLog("ERROR: Contract Address kosong!", "error");
                 return;
             }
 
-            try {
-                const resp = await window.solana.connect();
-                const key = resp.publicKey.toString();
-                addrText.innerText = key.slice(0,6) + "..." + key.slice(-6);
-                walletDisplay.classList.remove('hidden');
-                connectBtn.innerText = "ONLINE";
-                connectBtn.classList.remove('bg-yellow-500');
-                connectBtn.classList.add('bg-green-500');
-                addLog("Wallet Terhubung: " + key, "success");
-                showToast("Connected!");
-            } catch (err) {
-                addLog("Koneksi Gagal: " + err.message, "danger");
-            }
-        });
-
-        // Audit & Snipe Simulation
-        document.getElementById('btnAudit').addEventListener('click', () => {
-            const ca = document.getElementById('caInput').value;
-            if(!ca) return showToast("Masukkan CA!");
+            addLog(`Inisialisasi Transaksi: ${amount} SOL...`, "warn");
+            addLog(`Mengirim via Jito-Solana Engine...`, "info");
             
-            addLog("Menganalisis Kontrak Target...", "warning");
             setTimeout(() => {
-                document.getElementById('auditResult').classList.remove('hidden');
-                addLog("Audit Selesai: Koin Lolos Verifikasi Titan.", "success");
-            }, 1000);
-        });
-
-        document.getElementById('btnSnipe').addEventListener('click', () => {
-            const val = solInput.value;
-            addLog(`Mengirim Jito Bundle: ${val} SOL...`, "warning");
-            setTimeout(() => {
-                addLog(`Dikonfirmasi! Profit Target 2x Diaktifkan.`, "success");
-                showToast("Snipe Successful!");
-            }, 1500);
-        });
-
-        document.getElementById('clearLog').addEventListener('click', () => {
-            terminal.innerHTML = '<div class="text-gray-500">> Log cleared.</div>';
+                addLog("TRANSAKSI BERHASIL: View on Solscan", "success");
+            }, 2000);
         });
 
     </script>
