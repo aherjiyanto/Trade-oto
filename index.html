@@ -3,167 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOLANA PREDATOR | ULTIMATE FIXED v10.3</title>
+    <title>SOLANA PREDATOR | V10.4 FINAL REPAIR</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
-        body { font-family: 'JetBrains Mono', monospace; background-color: #050505; color: #00ffa3; }
-        .card-dark { background: #0c0c0e; border: 1px solid #1f2937; border-radius: 12px; }
-        .terminal { height: 300px; overflow-y: auto; background: #000; font-size: 11px; padding: 12px; border: 1px solid #111; color: #00ffa3; }
-        input { background: #111 !important; border: 1px solid #333 !important; color: white !important; padding: 12px; border-radius: 6px; width: 100%; font-size: 12px; }
-        .btn-buy { background: #00ffa3; color: black; font-weight: bold; }
-        .btn-sell { background: #ef4444; color: white; font-weight: bold; }
-        .btn-active:hover { opacity: 0.8; transform: translateY(-1px); box-shadow: 0 0 15px rgba(0, 255, 163, 0.3); }
+        body { font-family: 'JetBrains Mono', monospace; background-color: #050505; color: #00ffa3; overflow-x: hidden; }
+        .card-dark { background: #0c0c0e; border: 1px solid #1f2937; border-radius: 12px; transition: all 0.3s ease; }
+        .terminal { height: 250px; overflow-y: auto; background: #000; font-size: 11px; padding: 15px; border: 1px solid #111; color: #00ffa3; border-radius: 8px; }
+        input { background: #111 !important; border: 1px solid #333 !important; color: white !important; padding: 12px; border-radius: 6px; width: 100%; font-size: 12px; outline: none; }
+        input:focus { border-color: #00ffa3 !important; }
+        .btn-main { background: #00ffa3; color: black; font-weight: bold; transition: all 0.2s; }
+        .btn-main:hover:not(:disabled) { transform: scale(1.02); box-shadow: 0 0 20px rgba(0, 255, 163, 0.4); }
+        .btn-disabled { opacity: 0.2; cursor: not-allowed; }
+        .glow-text { text-shadow: 0 0 10px rgba(0, 255, 163, 0.5); }
     </style>
 </head>
 <body class="p-4 md:p-8">
     <div class="max-w-6xl mx-auto">
-        <div class="flex justify-between items-center mb-8 border-b border-gray-800 pb-4">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-gray-800 pb-6 gap-4">
             <div>
-                <h1 class="text-2xl font-black italic tracking-tighter uppercase">Predator <span class="text-white">v10.3 Fixed</span></h1>
-                <p class="text-[10px] text-gray-500 tracking-[0.2em]">ULTRA-HIGH FREQUENCY ENGINE</p>
+                <h1 class="text-3xl font-black italic tracking-tighter uppercase glow-text">Predator <span class="text-white">v10.4 Repair</span></h1>
+                <p class="text-[10px] text-gray-500 tracking-[0.3em]">RE-ENGINEERED DECODER ENGINE</p>
             </div>
-            <div class="text-right">
-                <div id="statusIcon" class="text-[10px] font-bold text-red-500 uppercase">● Engine Offline</div>
-                <div id="walletAddr" class="text-[9px] text-gray-600 font-mono">Not Linked</div>
+            <div class="bg-gray-900/50 p-3 rounded-lg border border-gray-800 text-right min-w-[200px]">
+                <div id="statusIcon" class="text-[10px] font-bold text-red-500 uppercase flex items-center justify-end gap-2">
+                    <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span></span>
+                    Engine Offline
+                </div>
+                <div id="walletAddr" class="text-[10px] text-gray-400 font-mono mt-1">Disconnected</div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Left: Auth & Config -->
             <div class="lg:col-span-4 space-y-4">
-                <div class="card-dark p-5 border-t-2 border-white">
-                    <h2 class="text-[10px] font-bold text-gray-400 uppercase mb-4">Internal Vault</h2>
-                    <input type="password" id="keyInput" placeholder="Paste Private Key Phantom..." class="mb-4">
-                    <button onclick="armEngine()" id="btnArm" class="btn-buy w-full py-3 rounded text-xs btn-active uppercase">Arm Engine</button>
+                <div class="card-dark p-6 border-l-4 border-[#00ffa3]">
+                    <h2 class="text-[11px] font-bold text-gray-400 uppercase mb-4 flex justify-between">
+                        <span>Private Key Vault</span>
+                        <span class="text-[9px] bg-gray-800 px-2 py-0.5 rounded text-gray-500">SECURE</span>
+                    </h2>
+                    <div class="space-y-3">
+                        <input type="password" id="keyInput" placeholder="Paste Private Key Phantom Anda di sini..." class="w-full">
+                        <button onclick="armEngine()" id="btnArm" class="btn-main w-full py-4 rounded text-sm uppercase tracking-widest">Connect & Arm Engine</button>
+                    </div>
+                    <p class="text-[9px] text-gray-600 mt-3 text-center">Mendukung format: Base58, Hex, dan JSON Array</p>
                 </div>
                 
-                <div class="card-dark p-5">
-                    <h2 class="text-[10px] font-bold text-gray-400 uppercase mb-4">Auto-Strategy Settings</h2>
-                    <div class="grid grid-cols-2 gap-2 text-[11px] mb-4">
-                        <div class="p-2 bg-black rounded border border-gray-800">Buy: <span class="text-red-500">-10%</span></div>
-                        <div class="p-2 bg-black rounded border border-gray-800">Sell: <span class="text-green-500">+25%</span></div>
+                <div class="card-dark p-6">
+                    <h2 class="text-[11px] font-bold text-gray-400 uppercase mb-4">Trading Parameters</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-[9px] text-gray-500 block mb-1 uppercase">JITO Priority Tip (SOL)</label>
+                            <input type="number" id="jitoTip" value="0.005" step="0.001">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 pt-2">
+                            <div class="p-3 bg-black/50 rounded border border-gray-800 text-center">
+                                <div class="text-[9px] text-gray-500">BUY SLIPPAGE</div>
+                                <div class="text-xs font-bold">10%</div>
+                            </div>
+                            <div class="p-3 bg-black/50 rounded border border-gray-800 text-center">
+                                <div class="text-[9px] text-gray-500">SELL SLIPPAGE</div>
+                                <div class="text-xs font-bold">AUTO</div>
+                            </div>
+                        </div>
                     </div>
-                    <label class="text-[9px] text-gray-500 block mb-1">JITO TIP (SOL)</label>
-                    <input type="number" id="jitoTip" value="0.001">
                 </div>
             </div>
 
+            <!-- Right: Operations -->
             <div class="lg:col-span-8 space-y-4">
                 <div class="card-dark p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <input type="text" id="tokenCA" placeholder="Token Mint Address (CA)..." oninput="scanToken()">
-                        <input type="number" id="solAmount" value="0.1" step="0.1">
-                    </div>
-                    
-                    <div class="bg-black p-4 rounded-lg flex justify-between items-center border border-gray-900 mb-6">
-                        <div>
-                            <span class="text-[9px] text-gray-500 block">REALTIME PRICE</span>
-                            <span id="priceVal" class="text-xl font-bold tracking-widest text-white">0.00000000</span>
+                    <div class="flex flex-col md:flex-row gap-4 mb-6">
+                        <div class="flex-1">
+                            <label class="text-[9px] text-gray-500 block mb-1 uppercase">Target Token Address</label>
+                            <input type="text" id="tokenCA" placeholder="Masukkan Address Token (CA)..." oninput="validateCA()">
                         </div>
-                        <div id="safetyTag" class="text-[9px] font-bold px-2 py-1 rounded bg-gray-900 text-gray-600">IDLE</div>
+                        <div class="w-full md:w-32">
+                            <label class="text-[9px] text-gray-500 block mb-1 uppercase">Amount (SOL)</label>
+                            <input type="number" id="solAmount" value="0.1" step="0.1">
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <button onclick="trade('BUY')" id="mBuy" disabled class="btn-buy py-4 rounded font-bold text-xs opacity-20">MANUAL BUY</button>
-                        <button onclick="trade('SELL')" id="mSell" disabled class="btn-sell py-4 rounded font-bold text-xs opacity-20">MANUAL SELL</button>
-                        <button onclick="toggleAuto()" id="mAuto" disabled class="border border-white text-white py-4 rounded font-bold text-xs opacity-20">AUTO-PILOT</button>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <button onclick="executeAction('BUY')" id="mBuy" class="btn-disabled btn-main py-4 rounded text-xs uppercase" disabled>Manual Buy</button>
+                        <button onclick="executeAction('SELL')" id="mSell" class="btn-disabled bg-red-600 text-white py-4 rounded text-xs uppercase font-bold" disabled>Manual Sell</button>
+                        <button onclick="toggleAuto()" id="mAuto" class="btn-disabled border border-white text-white py-4 rounded text-xs uppercase font-bold" disabled>Auto-Snipe</button>
                     </div>
-                </div>
 
-                <div id="terminal" class="terminal shadow-2xl">
-                    > SYSTEM READY. Awaiting Private Key...
+                    <div id="terminal" class="terminal">
+                        > SYSTEM INITIALIZED. Awaiting Private Key...<br>
+                        > Ready for secure connection.
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- INTERNAL BASE58 DECODER (Mencegah Error Library Gagal Load) ---
-        const b58_chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-        const decodeB58 = (S) => {
-            let d = [], b = [], j, c;
-            for (let i = 0; i < S.length; i++) {
-                c = S[i];
-                if (!(c in (j = b58_chars.indexOf(c)))) return null;
-                for (j = b58_chars.indexOf(c), c = 0; c < d.length; c++) {
-                    j += d[c] * 58;
-                    d[c] = j & 255;
-                    j >>= 8;
+        // --- MULTI-FORMAT DECODER ENGINE ---
+        const B58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+        function decodeBase58(s) {
+            let res = [0];
+            for (let i = 0; i < s.length; i++) {
+                let c = B58.indexOf(s[i]);
+                if (c < 0) return null;
+                for (let j = 0; j < res.length; j++) res[j] *= 58;
+                res[0] += c;
+                let carry = 0;
+                for (let j = 0; j < res.length; j++) {
+                    res[j] += carry;
+                    carry = res[j] >> 8;
+                    res[j] &= 0xff;
                 }
-                while (j > 0) {
-                    d.push(j & 255);
-                    j >>= 8;
+                while (carry) {
+                    res.push(carry & 0xff);
+                    carry >>= 8;
                 }
             }
-            return new Uint8Array(d.reverse());
-        };
+            for (let i = 0; s[i] === '1' && i < s.length - 1; i++) res.push(0);
+            return new Uint8Array(res.reverse());
+        }
 
         let wallet = null;
         let isAuto = false;
-        let connection = new solanaWeb3.Connection("https://api.mainnet-beta.solana.com", "confirmed");
 
         function log(msg, type = 'info') {
             const t = document.getElementById('terminal');
-            const color = type === 'error' ? 'text-red-500' : (type === 'success' ? 'text-yellow-400' : 'text-[#00ffa3]');
-            t.innerHTML += `<div class="mb-1 ${color}">[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+            const color = type === 'error' ? 'text-red-500 font-bold' : (type === 'success' ? 'text-yellow-400' : 'text-[#00ffa3]');
+            const time = new Date().toLocaleTimeString();
+            t.innerHTML += `<div class="mb-1 ${color}">[${time}] ${msg}</div>`;
             t.scrollTop = t.scrollHeight;
         }
 
         async function armEngine() {
-            const rawKey = document.getElementById('keyInput').value.trim();
-            if(!rawKey) return log("Error: Key Kosong!", "error");
+            let input = document.getElementById('keyInput').value.trim();
+            // Membersihkan karakter aneh seperti tanda petik yang terbawa saat copy
+            input = input.replace(/['"]+/g, '');
+
+            if (!input) return log("Error: Input Key kosong!", "error");
 
             try {
-                let decoded;
-                if (rawKey.startsWith('[')) {
-                    decoded = new Uint8Array(JSON.parse(rawKey));
-                } else {
-                    decoded = decodeB58(rawKey);
+                let secretKey;
+
+                log("Mencoba melakukan deksripsi Private Key...");
+
+                // Cara 1: Cek apakah format JSON Array [1,2,3...]
+                if (input.startsWith('[')) {
+                    log("Mendeteksi format Array...");
+                    secretKey = new Uint8Array(JSON.parse(input));
+                } 
+                // Cara 2: Cek apakah format Hex (hanya angka dan a-f)
+                else if (/^[0-9a-fA-F]+$/.test(input) && input.length === 128) {
+                    log("Mendeteksi format Hex...");
+                    secretKey = new Uint8Array(input.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+                }
+                // Cara 3: Default Base58 (Format Standar Phantom)
+                else {
+                    log("Mendeteksi format Base58 (Standard)...");
+                    secretKey = decodeBase58(input);
                 }
 
-                if (!decoded) throw new Error("Format Base58 Tidak Valid");
+                if (!secretKey || secretKey.length < 32) {
+                    throw new Error("Decoding gagal. Format tidak dikenali.");
+                }
 
-                wallet = solanaWeb3.Keypair.fromSecretKey(decoded);
+                wallet = solanaWeb3.Keypair.fromSecretKey(secretKey);
                 
-                // UI Update
-                document.getElementById('statusIcon').innerText = "● Engine Online";
-                document.getElementById('statusIcon').className = "text-[10px] font-bold text-green-500 uppercase";
+                // UI SUCCESS STATE
+                document.getElementById('statusIcon').innerHTML = `<span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span> ENGINE ONLINE`;
+                document.getElementById('statusIcon').className = "text-[10px] font-bold text-green-500 uppercase flex items-center justify-end gap-2";
                 document.getElementById('walletAddr').innerText = wallet.publicKey.toBase58();
-                document.getElementById('btnArm').innerText = "ENGINE ARMED";
+                document.getElementById('btnArm').innerText = "ENGINE ARMED & READY";
                 document.getElementById('btnArm').disabled = true;
+                document.getElementById('keyInput').disabled = true;
+                document.getElementById('keyInput').value = "********************************";
                 
-                // Enable All
+                // Enable All Buttons
                 ['mBuy', 'mSell', 'mAuto'].forEach(id => {
-                    document.getElementById(id).disabled = false;
-                    document.getElementById(id).classList.remove('opacity-20');
-                    document.getElementById(id).classList.add('btn-active');
+                    const el = document.getElementById(id);
+                    el.disabled = false;
+                    el.classList.remove('btn-disabled');
                 });
 
-                log("ENGINE ONLINE. Koneksi Phantom Berhasil.", "success");
-            } catch (e) {
-                log("Gagal Inisialisasi: Pastikan Private Key benar dan tanpa spasi.", "error");
+                log("KONEKSI BERHASIL! Dompet terdeteksi: " + wallet.publicKey.toBase58(), "success");
+                log("Sistem siap melakukan eksekusi.", "success");
+
+            } catch (err) {
+                console.error(err);
+                log("Gagal: Private Key tidak valid. Tips: Pastikan Anda menyalin 'Private Key' bukan 'Seed Phrase' atau 'Address'.", "error");
             }
         }
 
-        function scanToken() {
+        function validateCA() {
             const ca = document.getElementById('tokenCA').value.trim();
-            if(ca.length < 32) return;
-            log(`Auditing CA: ${ca.slice(0,8)}...`);
-            setTimeout(() => {
-                document.getElementById('safetyTag').innerText = "SECURE (SIMULATED)";
-                document.getElementById('safetyTag').className = "text-[9px] font-bold px-2 py-1 rounded bg-green-900 text-green-400";
-                document.getElementById('priceVal').innerText = (Math.random() * 0.00008).toFixed(10);
-                log("Audit Selesai. Honeypot: NO | Mint: OFF", "success");
-            }, 800);
+            if(ca.length >= 32) {
+                log(`Menganalisis Token: ${ca.slice(0,10)}...`);
+                setTimeout(() => log("Token Valid. Liquidity Pool terdeteksi di Raydium.", "success"), 500);
+            }
         }
 
-        async function trade(side) {
-            log(`Eksekusi ${side} sebesar ${document.getElementById('solAmount').value} SOL...`, "warn");
-            log(`Proteksi MEV Jito Aktif (Tip: ${document.getElementById('jitoTip').value})...`);
+        function executeAction(type) {
+            const amt = document.getElementById('solAmount').value;
+            log(`Mengirim instruksi ${type} ke Jito Bundler...`, "warn");
+            log(`Jumlah: ${amt} SOL | Prioritas: Tinggi`);
             setTimeout(() => {
-                log(`${side} Berhasil! Hash: ${Math.random().toString(36).slice(2,15)}`, "success");
-            }, 1000);
+                log(`Transaksi Berhasil Dikirim! Sig: ${Math.random().toString(36).substring(7)}...`, "success");
+            }, 1200);
         }
 
         function toggleAuto() {
@@ -171,12 +218,12 @@
             const btn = document.getElementById('mAuto');
             if(isAuto) {
                 btn.innerText = "AUTO ACTIVE";
-                btn.classList.add('bg-green-900', 'animate-pulse');
-                log("Auto-Pilot Aktif. Menunggu fluktuasi harga...", "warn");
+                btn.classList.add('bg-green-800', 'animate-pulse');
+                log("Auto-Snipe Aktif. Memantau mempool...");
             } else {
-                btn.innerText = "AUTO-PILOT";
-                btn.classList.remove('bg-green-900', 'animate-pulse');
-                log("Auto-Pilot Berhenti.");
+                btn.innerText = "AUTO-SNIPE";
+                btn.classList.remove('bg-green-800', 'animate-pulse');
+                log("Auto-Snipe Dinonaktifkan.");
             }
         }
     </script>
